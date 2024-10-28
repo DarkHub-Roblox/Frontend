@@ -1274,18 +1274,25 @@ function DarkHubLibrary:CreateWindow(Settings)
 		makefolder(DarkHubFolder.."/Key System")
 	end
 
-	-- New Key Retrieval Logic
-	if Settings.KeySettings.GrabKeyFromSite then
-		for i, Key in ipairs(Settings.KeySettings.Key) do
-			local Success, Response = pcall(function()
-				Settings.KeySettings.Key[i] = tostring(game:HttpGet(Key):gsub("[\n\r]", " "))
-				Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
-			end)
-			if not Success then
-				print("DarkHub | "..Key.." Error " ..tostring(Response))
-			end
+	-- Firebase Key Retrieval Logic
+	local HttpService = game:GetService("HttpService")
+	local FirebaseURL = "https://darkhub-de599-default-rtdb.firebaseio.com/" -- Replace with your Firebase URL
+
+	local function fetchKeyFromFirebase()
+		local success, response = pcall(function()
+			return HttpService:GetAsync(FirebaseURL)
+		end)
+
+		if success then
+			local data = HttpService:JSONDecode(response)
+			return data.key or "Invalid Key"
+		else
+			print("Error fetching key from Firebase: " .. tostring(response))
+			return "Error"
 		end
 	end
+
+	local fetchedKey = fetchKeyFromFirebase()
 
 	-- Check for File Name
 	if not Settings.KeySettings.FileName then
@@ -1294,7 +1301,7 @@ function DarkHubLibrary:CreateWindow(Settings)
 
 	-- Key Validation Logic
 	if isfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) then
-		if readfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) == Settings.KeySettings.Key then
+		if readfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) == fetchedKey then
 			Passthrough = true
 		end
 	end
@@ -1369,140 +1376,29 @@ function DarkHubLibrary:CreateWindow(Settings)
 		wait(0.15)
 		TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
 		TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
-		
-		-- Hide Input Text
-		KeyUI.Main.Input.InputBox:GetPropertyChangedSignal('Text'):Connect(function()
-			KeyUI.Main.Input.HidenInput.Text = string.rep('•', #KeyUI.Main.Input.InputBox.Text)
-		end)
 
-		-- Input Box Logic
-		KeyUI.Main.Input.InputBox.FocusLost:Connect(function(EnterPressed)
-			if not EnterPressed then return end
-			if #KeyUI.Main.Input.InputBox.Text == 0 then return end
-			local KeyFound = false
-			local FoundKey = ''
-			for _, MKey in ipairs(Settings.KeySettings.Key) do
-				if KeyMain.Input.InputBox.Text == MKey then
-					KeyFound = true
-					FoundKey = MKey
-				end
-			end
-			if KeyFound then
-				for _, Action in ipairs(KeyMain.Actions:GetChildren()) do
-					if Action:IsA('TextButton') then
-						TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					end
-				end
-				-- Animate UI on successful key entry
-				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
-				TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
-				TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-				TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-
-				wait(0.3)
-
-				-- Save Valid Key
-				if Settings.KeySettings.SaveKey then
-					if writefile then
-						writefile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, FoundKey)
-					end
-					DarkHubLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
-				end
-
-				-- Key Validation Passed
-				Passthrough = true
-				KeyUI:Destroy()
-			else
-				AttemptsRemaining = AttemptsRemaining - 1
-				if AttemptsRemaining <= 0 then
-					game.Players.LocalPlayer:Kick("No Attempts Remaining")
-					game:Shutdown()
+		-- Handle Key Input
+		KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
+			if enterPressed then
+				local inputKey = KeyMain.Input.InputBox.Text
+				if inputKey == fetchedKey then
+					writefile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, inputKey)
+					DarkHub.Enabled = true
+					KeyUI.Enabled = false
+					_G.KeyUI = nil
 				else
-					print("Invalid key. Attempts remaining: " .. AttemptsRemaining)
-					KeyMain.Input.InputBox.Text = ""
+					AttemptsRemaining = AttemptsRemaining - 1
+					if AttemptsRemaining <= 0 then
+						game.Players.LocalPlayer:Kick("Exceeded maximum attempts")
+					else
+						KeyMain.NoteMessage.Text = "Invalid key! Attempts remaining: " .. AttemptsRemaining
+					end
 				end
 			end
 		end)
-	else
-		print("Key validated from file. Bypassing UI.")
 	end
 end
 
--- Firebase URL for key validation
-local firebaseURL = "https://darkhub-de599-default-rtdb.firebaseio.com/.json"
-
--- Function to fetch keys data from Firebase
-local function fetchKeysData()
-	local success, response = pcall(function()
-		return game:HttpGet(firebaseURL)
-	end)
-	if not success then
-		print("Error fetching data from Firebase: " .. tostring(response))
-		return nil
-	end
-	return HttpService:JSONDecode(response)
-end
-
--- Calculate remaining time for expiry
-local function calculateRemainingTime(expiryDate)
-	local timeRemaining = expiryDate - os.time()
-	local days = math.floor(timeRemaining / (60 * 60 * 24))
-	local hours = math.floor((timeRemaining % (60 * 60 * 24)) / (60 * 60))
-	local minutes = math.floor((timeRemaining % (60 * 60)) / 60)
-	return days, hours, minutes
-end
-
--- Get expiry time from Type if no ExpiryDate is provided
-local function getExpiryFromType(typeString)
-	local durationInSeconds = {
-		["1 day"] = 24 * 60 * 60,
-		["1 week"] = 7 * 24 * 60 * 60,
-		["1 month"] = 30 * 24 * 60 * 60,
-		["1 year"] = 365 * 24 * 60 * 60,
-		["lifetime"] = math.huge
-	}
-	return os.time() + (durationInSeconds[typeString] or 0)
-end
-
--- Check if a key is valid
-local function checkKeyValidity(key)
-	local keysData = fetchKeysData()
-	if not keysData or not keysData[key] then
-		print("Invalid key.")
-		return false
-	end
-	
-	local keyData = keysData[key]
-	local expiryDate
-
-	-- Use ExpiryDate if available, otherwise calculate based on Type
-	if keyData.ExpiryDate then
-		expiryDate = keyData.ExpiryDate
-	else
-		expiryDate = getExpiryFromType(keyData.Type)
-	end
-
-	-- Calculate remaining time
-	local days, hours, minutes = calculateRemainingTime(expiryDate)
-	
-	if days < 0 or hours < 0 or minutes < 0 then
-		print("The key has expired.")
-		return false
-	else
-		print("Remaining time:", days .. " days, " .. hours .. " hours, " .. minutes .. " minutes")
-		return true
-	end
-end
 
 -- Check for passthrough
 if Settings.KeySystem then
