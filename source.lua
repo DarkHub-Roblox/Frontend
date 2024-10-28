@@ -1,7 +1,6 @@
-
 --[[
 
-DarkHub Interface Suite
+ArrayField Interface Suite
 by Meta
 
 Original by Sirius
@@ -15,16 +14,16 @@ Arrays  | Designing + Programming + New Features
 
 local Release = "Release 2A"
 local NotificationDuration = 6.5
-local DarkHubFolder = "DarkHub"
-local ConfigurationFolder = DarkHubFolder.."/Configurations"
+local ArrayFieldFolder = "ArrayField"
+local ConfigurationFolder = ArrayFieldFolder.."/Configurations"
 local ConfigurationExtension = ".rfld"
-local DarkHubQuality = {}
+local ArrayFieldQuality = {}
 
-local DarkHubLibrary = {
+local ArrayFieldLibrary = {
 	Flags = {},
 	Theme = {
 		Default = {
-			TextFont = "Default", -- Default will use the various font faces used across DarkHub
+			TextFont = "Default", -- Default will use the various font faces used across ArrayField
 			TextColor = Color3.fromRGB(240, 240, 240),
 
 			Background = Color3.fromRGB(25, 25, 25),
@@ -63,7 +62,7 @@ local DarkHubLibrary = {
 			PlaceholderColor = Color3.fromRGB(178, 178, 178)
 		},
 		Light = {
-			TextFont = "Gotham",  -- Default will use the various font faces used across DarkHub
+			TextFont = "Gotham",  -- Default will use the various font faces used across ArrayField
 			TextColor = Color3.fromRGB(50, 50, 50), -- i need to make all text 240, 240, 240 and base gray on transparency not color to do this
 
 			Background = Color3.fromRGB(255, 255, 255),
@@ -117,18 +116,18 @@ local CoreGui = game:GetService("CoreGui")
 local LocalPlayer = game:GetService('Players').LocalPlayer
 
 -- Interface Management
-local DarkHub = game:GetObjects("rbxassetid://13853811008")[1]
-DarkHub.Enabled = false
+local ArrayField = game:GetObjects("rbxassetid://13853811008")[1]
+ArrayField.Enabled = false
 local spawn = task.spawn
 local delay = task.delay
 
 --Studio
 if game["Run Service"]:IsStudio() then
-	function gethui() return DarkHub end local http_request = nil local syn = {protect_gui = false,request = false,}local http = nil function writefile(tt,t,ttt)end function isfolder(t)end function makefolder(t)end function isfile(r)end function readfile(t)end
+	function gethui() return ArrayField end local http_request = nil local syn = {protect_gui = false,request = false,}local http = nil function writefile(tt,t,ttt)end function isfolder(t)end function makefolder(t)end function isfile(r)end function readfile(t)end
 end
 
 pcall(function()
-	_G.LastRayField.Name = 'Old DarkHub'
+	_G.LastRayField.Name = 'Old Arrayfield'
 	_G.LastRayField.Enabled = false
 end)
 local ParentObject = function(Gui)
@@ -146,14 +145,14 @@ local ParentObject = function(Gui)
 	if not success and failure then
 		Gui.Parent = LocalPlayer:FindFirstChildWhichIsA("PlayerGui")
 	end
-	_G.LastRayField = DarkHub
+	_G.LastRayField = ArrayField
 end
-ParentObject(DarkHub)
+ParentObject(ArrayField)
 
 --Object Variables
 
 local Camera = workspace.CurrentCamera
-local Main = DarkHub.Main
+local Main = ArrayField.Main
 local Topbar = Main.Topbar
 local Elements = Main.Elements
 local LoadingFrame = Main.LoadingFrame
@@ -164,9 +163,9 @@ local SearchBar = Main.Searchbar
 local Filler = SearchBar.CanvasGroup.Filler
 local Prompt = Main.Prompt
 local NotePrompt = Main.NotePrompt
-local InfoPrompt = DarkHub.Info
+local InfoPrompt = ArrayField.Info
 
-DarkHub.DisplayOrder = 100
+ArrayField.DisplayOrder = 100
 LoadingFrame.Version.Text = Release
 
 
@@ -183,13 +182,13 @@ local SideBarClosed = true
 local InfoPromptOpen = false
 local BarType = 'Side'
 local HoverTime = 0.3
-local Notifications = DarkHub.Notifications
+local Notifications = ArrayField.Notifications
 
-local SelectedTheme = DarkHubLibrary.Theme.Default
+local SelectedTheme = ArrayFieldLibrary.Theme.Default
 
 function ChangeTheme(ThemeName)
-	SelectedTheme = DarkHub.Theme[ThemeName]
-	for _, obj in ipairs(DarkHub:GetDescendants()) do
+	SelectedTheme = ArrayField.Theme[ThemeName]
+	for _, obj in ipairs(ArrayField:GetDescendants()) do
 		if obj.ClassName == "TextLabel" or obj.ClassName == "TextBox" or obj.ClassName == "TextButton" then
 			if SelectedTheme.TextFont ~= "Default" then 
 				obj.TextColor3 = SelectedTheme.TextColor
@@ -198,14 +197,14 @@ function ChangeTheme(ThemeName)
 		end
 	end
 
-	DarkHub.Main.BackgroundColor3 = SelectedTheme.Background
-	DarkHub.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
-	DarkHub.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Topbar
-	DarkHub.Main.Shadow.Image.ImageColor3 = SelectedTheme.Shadow
+	ArrayField.Main.BackgroundColor3 = SelectedTheme.Background
+	ArrayField.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
+	ArrayField.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Topbar
+	ArrayField.Main.Shadow.Image.ImageColor3 = SelectedTheme.Shadow
 
-	DarkHub.Main.Topbar.ChangeSize.ImageColor3 = SelectedTheme.TextColor
-	DarkHub.Main.Topbar.Hide.ImageColor3 = SelectedTheme.TextColor
-	DarkHub.Main.Topbar.Theme.ImageColor3 = SelectedTheme.TextColor
+	ArrayField.Main.Topbar.ChangeSize.ImageColor3 = SelectedTheme.TextColor
+	ArrayField.Main.Topbar.Hide.ImageColor3 = SelectedTheme.TextColor
+	ArrayField.Main.Topbar.Theme.ImageColor3 = SelectedTheme.TextColor
 
 	for _, TabPage in ipairs(Elements:GetChildren()) do
 		for _, Element in ipairs(TabPage:GetChildren()) do
@@ -332,16 +331,16 @@ end
 local function LoadConfiguration(Configuration)
 	local Data = HttpService:JSONDecode(Configuration)
 	for FlagName, FlagValue in next, Data do
-		if DarkHubLibrary.Flags[FlagName] then
+		if ArrayFieldLibrary.Flags[FlagName] then
 			spawn(function() 
-				if DarkHubLibrary.Flags[FlagName].Type == "ColorPicker" then
-					DarkHubLibrary.Flags[FlagName]:Set(UnpackColor(FlagValue))
+				if ArrayFieldLibrary.Flags[FlagName].Type == "ColorPicker" then
+					ArrayFieldLibrary.Flags[FlagName]:Set(UnpackColor(FlagValue))
 				else
-					if DarkHubLibrary.Flags[FlagName].CurrentValue or DarkHubLibrary.Flags[FlagName].CurrentKeybind or DarkHubLibrary.Flags[FlagName].CurrentOption or DarkHubLibrary.Flags[FlagName].Color ~= FlagValue then DarkHubLibrary.Flags[FlagName]:Set(FlagValue) end
+					if ArrayFieldLibrary.Flags[FlagName].CurrentValue or ArrayFieldLibrary.Flags[FlagName].CurrentKeybind or ArrayFieldLibrary.Flags[FlagName].CurrentOption or ArrayFieldLibrary.Flags[FlagName].Color ~= FlagValue then ArrayFieldLibrary.Flags[FlagName]:Set(FlagValue) end
 				end    
 			end)
 		else
-			DarkHubLibrary:Notify({Title = "Flag Error", Content = "DarkHub was unable to find '"..FlagName.. "'' in the current script"})
+			ArrayFieldLibrary:Notify({Title = "Flag Error", Content = "ArrayField was unable to find '"..FlagName.. "'' in the current script"})
 		end
 	end
 end
@@ -349,7 +348,7 @@ end
 local function SaveConfiguration()
 	if not CEnabled then return end
 	local Data = {}
-	for i,v in pairs(DarkHubLibrary.Flags) do
+	for i,v in pairs(ArrayFieldLibrary.Flags) do
 		if v.Type == "ColorPicker" then
 			Data[i] = PackColor(v.Color)
 		else
@@ -669,7 +668,7 @@ function ClosePrompt()
 	wait(.5)
 	Prompt.Visible = false
 end
-function DarkHubLibrary:Notify(NotificationSettings)
+function ArrayFieldLibrary:Notify(NotificationSettings)
 	spawn(function()
 		local ActionCompleted = true
 		local Notification = Notifications.Template:Clone()
@@ -695,7 +694,7 @@ function DarkHubLibrary:Notify(NotificationSettings)
 				ActionCompleted = false
 				local NewAction = Notification.Actions.Template:Clone()
 				NewAction.BackgroundColor3 = SelectedTheme.NotificationActionsBackground
-				if SelectedTheme ~= DarkHubLibrary.Theme.Default then
+				if SelectedTheme ~= ArrayFieldLibrary.Theme.Default then
 					NewAction.TextColor3 = SelectedTheme.TextColor
 				end
 				NewAction.Name = Action.Name
@@ -709,7 +708,7 @@ function DarkHubLibrary:Notify(NotificationSettings)
 				NewAction.MouseButton1Click:Connect(function()
 					local Success, Response = pcall(Action.Callback)
 					if not Success then
-						print("DarkHub | Action: "..Action.Name.." Callback Error " ..tostring(Response))
+						print("ArrayField | Action: "..Action.Name.." Callback Error " ..tostring(Response))
 					end
 					ActionCompleted = true
 				end)
@@ -758,7 +757,7 @@ function DarkHubLibrary:Notify(NotificationSettings)
 			end
 		end
 
-		if DarkHub.Name == "DarkHub" then
+		if ArrayField.Name == "ArrayField" then
 			neon:BindFrame(Notification.BlurModule, {
 				Transparency = 0.98;
 				BrickColor = BrickColor.new("Institutional white");
@@ -838,7 +837,7 @@ function Hide()
 		FadeDescription(nil,true)
 	end)
 	Debounce = true
-	DarkHubLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 7})
+	ArrayFieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 7})
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 470, 0, 400)}):Play()
 	TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 470, 0, 45)}):Play()
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
@@ -1180,8 +1179,8 @@ function Minimise()
 	Debounce = false
 end
 
-function DarkHubLibrary:CreateWindow(Settings)
-	DarkHub.Enabled = false
+function ArrayFieldLibrary:CreateWindow(Settings)
+	ArrayField.Enabled = false
 	local Passthrough = false
 	Topbar.Title.Text = Settings.Name
 	Main.Size = UDim2.new(0, 450, 0, 260)
@@ -1191,10 +1190,10 @@ function DarkHubLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 	Main.Shadow.Image.ImageTransparency = 1
 	LoadingFrame.Version.TextTransparency = 1
-	LoadingFrame.Title.Text = Settings.LoadingTitle or "DarkHub Interface Suite"
+	LoadingFrame.Title.Text = Settings.LoadingTitle or "Arrayfield Interface Suite"
 	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "by Sirius | Meta"
-	if Settings.LoadingTitle ~= "DarkHub Interface Suite" then
-		LoadingFrame.Version.Text = "DarkHub UI"
+	if Settings.LoadingTitle ~= "Arrayfield Interface Suite" then
+		LoadingFrame.Version.Text = "Arrayfield UI"
 	end
 	Topbar.Visible = false
 	Elements.Visible = false
@@ -1205,7 +1204,7 @@ function DarkHubLibrary:CreateWindow(Settings)
 		if not Settings.ConfigurationSaving.FileName then
 			Settings.ConfigurationSaving.FileName = tostring(game.PlaceId)
 		end
-		if not isfolder(DarkHubLibrary.."/".."Configuration Folders") then
+		if not isfolder(ArrayFieldLibrary.."/".."Configuration Folders") then
 
 		end
 		if Settings.ConfigurationSaving.Enabled == nil then
@@ -1237,10 +1236,10 @@ function DarkHubLibrary:CreateWindow(Settings)
 	end
 
 	if Settings.Discord then
-		if not isfolder(DarkHubFolder.."/Discord Invites") then
-			makefolder(DarkHubFolder.."/Discord Invites")
+		if not isfolder(ArrayFieldFolder.."/Discord Invites") then
+			makefolder(ArrayFieldFolder.."/Discord Invites")
 		end
-		if not isfile(DarkHubFolder.."/Discord Invites".."/"..Settings.Discord.Invite..ConfigurationExtension) then
+		if not isfile(ArrayFieldFolder.."/Discord Invites".."/"..Settings.Discord.Invite..ConfigurationExtension) then
 			if request then
 				request({
 					Url = 'http://127.0.0.1:6463/rpc?v=1',
@@ -1258,193 +1257,230 @@ function DarkHubLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.Discord.RememberJoins then -- We do logic this way so if the developer changes this setting, the user still won't be prompted, only new users
-				writefile(DarkHubFolder.."/Discord Invites".."/"..Settings.Discord.Invite..ConfigurationExtension,"DarkHub RememberJoins is true for this invite, this invite will not ask you to join again")
+				writefile(ArrayFieldFolder.."/Discord Invites".."/"..Settings.Discord.Invite..ConfigurationExtension,"ArrayField RememberJoins is true for this invite, this invite will not ask you to join again")
 			end
 		else
 
 		end
 	end
 
-	-- Key System Implementation
-if Settings.KeySystem then
-    -- Check if key settings are defined
-    if not Settings.KeySettings then
-        Passthrough = true
-        return
-    end
+	if Settings.KeySystem then
+		if not Settings.KeySettings then
+			Passthrough = true
+			return
+		end
 
-    -- Create key system folder if it doesn't exist
-    local keySystemPath = DarkHubFolder.."/Key System"
-    if not isfolder(keySystemPath) then
-        makefolder(keySystemPath)
-    end
+		if not isfolder(ArrayFieldFolder.."/Key System") then
+			makefolder(ArrayFieldFolder.."/Key System")
+		end
 
-    -- Fetch keys from specified URLs if required
-    if Settings.KeySettings.GrabKeyFromSite then
-        for i, keyUrl in ipairs(Settings.KeySettings.Key) do
-            local success, response = pcall(function()
-                local keyValue = tostring(game:HttpGet(keyUrl):gsub("[\n\r]", " "))
-                return string.gsub(keyValue, " ", "") -- Clean up the key
-            end)
+		if Settings.KeySettings.GrabKeyFromSite then
+			for i, Key in ipairs(Settings.KeySettings.Key) do
+				local Success, Response = pcall(function()
+					Settings.KeySettings.Key[i] = tostring(game:HttpGet(Key):gsub("[\n\r]", " "))
+					Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
+				end)
+				if not Success then
+					print("ArrayField | "..Key.." Error " ..tostring(Response))
+				end
+			end
+		end
 
-            if success then
-                Settings.KeySettings.Key[i] = response
-            else
-                print("DarkHub | " .. keyUrl .. " Error: " .. tostring(response))
-            end
-        end
-    end
+		if not Settings.KeySettings.FileName then
+			Settings.KeySettings.FileName = "No file name specified"
+		end
 
-    -- Ensure filename is specified
-    if not Settings.KeySettings.FileName then
-        Settings.KeySettings.FileName = "No file name specified"
-    end
+		if isfile(ArrayFieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) then
+			if readfile(ArrayFieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) == Settings.KeySettings.Key then
+				Passthrough = true
+			end
+		end
 
-    -- Check if the key file exists and read it
-    local keyFilePath = keySystemPath.."/"..Settings.KeySettings.FileName..ConfigurationExtension
-    if isfile(keyFilePath) then
-        local storedKey = readfile(keyFilePath)
-        if storedKey == Settings.KeySettings.Key then
-            Passthrough = true
-        end
-    end
+		if not Passthrough then
+			local AttemptsRemaining = math.random(2,6)
+			ArrayField.Enabled = false
+			local KeyUI = game:GetObjects("rbxassetid://11695805160")[1]
+			KeyUI.Enabled = true
+			pcall(function()
+				_G.KeyUI:Destroy()
+			end)
+			_G.KeyUI = KeyUI
 
-    -- If passthrough is not triggered, display key UI
-    if not Passthrough then
-        local attemptsRemaining = math.random(2, 6)
-        DarkHub.Enabled = false
-        local KeyUI = game:GetObjects("rbxassetid://11695805160")[1]
-        KeyUI.Enabled = true
-        pcall(function() _G.KeyUI:Destroy() end) -- Clean up previous UI
-        _G.KeyUI = KeyUI
+			ParentObject(KeyUI)
 
-        ParentObject(KeyUI)
+			local KeyMain = KeyUI.Main
+			KeyMain.Title.Text = Settings.KeySettings.Title or Settings.Name
+			KeyMain.Subtitle.Text = Settings.KeySettings.Subtitle or "Key System"
+			KeyMain.NoteMessage.Text = Settings.KeySettings.Note or "No instructions"
 
-        -- Configure key UI elements
-        local KeyMain = KeyUI.Main
-        KeyMain.Title.Text = Settings.KeySettings.Title or Settings.Name
-        KeyMain.Subtitle.Text = Settings.KeySettings.Subtitle or "Key System"
-        KeyMain.NoteMessage.Text = Settings.KeySettings.Note or "No instructions"
+			KeyMain.Size = UDim2.new(0, 467, 0, 175)
+			KeyMain.BackgroundTransparency = 1
+			KeyMain.EShadow.ImageTransparency = 1
+			KeyMain.Title.TextTransparency = 1
+			KeyMain.Subtitle.TextTransparency = 1
+			KeyMain.KeyNote.TextTransparency = 1
+			KeyMain.Input.BackgroundTransparency = 1
+			KeyMain.Input.UIStroke.Transparency = 1
+			KeyMain.Input.InputBox.TextTransparency = 1
+			KeyMain.NoteTitle.TextTransparency = 1
+			KeyMain.NoteMessage.TextTransparency = 1
+			KeyMain.Hide.ImageTransparency = 1
+			KeyMain.HideP.ImageTransparency = 1
+			KeyMain.Actions.Template.TextTransparency = 1
 
-        -- Set UI element properties
-        KeyMain.Size = UDim2.new(0, 467, 0, 175)
-        for _, element in pairs({
-            KeyMain.EShadow, KeyMain.Title, KeyMain.Subtitle, 
-            KeyMain.KeyNote, KeyMain.Input, KeyMain.Input.InputBox,
-            KeyMain.NoteTitle, KeyMain.NoteMessage, KeyMain.Hide, 
-            KeyMain.HideP, KeyMain.Actions.Template
-        }) do
-            element.BackgroundTransparency = 1
-            element.TextTransparency = 1
-        end
+			if Settings.KeySettings.Actions then
+				for _,ActionInfo in ipairs(Settings.KeySettings.Actions) do
+					local Action = KeyMain.Actions.Template:Clone()
+					Action.Text = ActionInfo.Text
+					Action.MouseButton1Down:Connect(ActionInfo.OnPress)
+					Action.MouseEnter:Connect(function()
+						TweenService:Create(Action,TweenInfo.new(.25,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{TextColor3 = Color3.fromRGB(185, 185, 185)}):Play()
+					end)
+					Action.MouseLeave:Connect(function()
+						TweenService:Create(Action,TweenInfo.new(.25,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{TextColor3 = Color3.fromRGB(105, 105, 105)}):Play()
+					end)
+					Action.Parent = KeyMain.Actions
+					delay(.2,function()
+						Action.Visible = true
+						TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+					end)
+				end
+			end
 
-        -- Configure actions in the key UI
-        if Settings.KeySettings.Actions then
-            for _, actionInfo in ipairs(Settings.KeySettings.Actions) do
-                local actionButton = KeyMain.Actions.Template:Clone()
-                actionButton.Text = actionInfo.Text
-                actionButton.MouseButton1Down:Connect(actionInfo.OnPress)
-                actionButton.MouseEnter:Connect(function()
-                    TweenService:Create(actionButton, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(185, 185, 185)}):Play()
-                end)
-                actionButton.MouseLeave:Connect(function()
-                    TweenService:Create(actionButton, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(105, 105, 105)}):Play()
-                end)
-                actionButton.Parent = KeyMain.Actions
-                delay(0.2, function()
-                    actionButton.Visible = true
-                    TweenService:Create(actionButton, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-                end)
-            end
-        end
+			TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 500, 0, 187)}):Play()
+			TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 0.5}):Play()
+			wait(0.05)
+			TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			wait(0.05)
+			TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+			TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0}):Play()
+			TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			wait(0.05)
+			TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+			wait(0.15)
+			TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
+			TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
+			KeyUI.Main.Input.InputBox:GetPropertyChangedSignal('Text'):Connect(function()
+				KeyUI.Main.Input.HidenInput.Text = string.rep('•', #KeyUI.Main.Input.InputBox.Text)
+			end)
+			KeyUI.Main.Input.InputBox.FocusLost:Connect(function(EnterPressed)
+				if not EnterPressed then return end
+				if #KeyUI.Main.Input.InputBox.Text == 0 then return end
+				local KeyFound = false
+				local FoundKey = ''
+				for _, MKey in ipairs(Settings.KeySettings.Key) do
+					if KeyMain.Input.InputBox.Text== MKey then
+						KeyFound = true
+						FoundKey = MKey
+					end
+				end
+				if KeyFound then
+					for _,Action in ipairs(KeyMain.Actions:GetChildren()) do
+						if Action:IsA('TextButton') then
+							TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						end
+					end
+					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
+					TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
+					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+					TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+					delay(.4,function()
+						KeyMain.Hide.Visible = false
+						KeyUI:Destroy()
+					end)
+					wait(0.51)
+					Passthrough = true
+					if Settings.KeySettings.SaveKey then
+						if writefile then
+							writefile(ArrayFieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, Settings.KeySettings.Key)
+						end
+						ArrayFieldLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
+					end
+				else
+					if AttemptsRemaining == 0 then
+						TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+						TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
+						TweenService:Create(KeyMain.Shadow.Image, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
+						TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+						TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+						TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+						wait(0.45)
+						game.Players.LocalPlayer:Kick("No Attempts Remaining")
+						game:Shutdown()
+					end
+					KeyMain.Input.InputBox.Text = ""
+					AttemptsRemaining = AttemptsRemaining - 1
+					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
+					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Elastic), {Position = UDim2.new(0.495,0,0.5,0)}):Play()
+					wait(0.1)
+					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Elastic), {Position = UDim2.new(0.505,0,0.5,0)}):Play()
+					wait(0.1)
+					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5,0,0.5,0)}):Play()
+					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 500, 0, 187)}):Play()
+				end
+			end)
+			local Hidden = true
+			KeyMain.HideP.MouseButton1Click:Connect(function()
+				if Hidden then
+					TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+					Hidden = false
+				else
+					TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+					Hidden = true
+				end
+			end)
 
-        -- Fade in the key UI
-        local tweenInfo = TweenInfo.new(0.6, Enum.EasingStyle.Quint)
-        TweenService:Create(KeyMain, tweenInfo, {BackgroundTransparency = 0}):Play()
-        TweenService:Create(KeyMain, tweenInfo, {Size = UDim2.new(0, 500, 0, 187)}):Play()
-        TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 0.5}):Play()
-
-        -- Delay for visual effect
-        wait(0.05)
-        TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-        TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-
-        -- Function to handle key input
-        local function handleKeyInput()
-            KeyMain.Input.InputBox:GetPropertyChangedSignal('Text'):Connect(function()
-                KeyMain.Input.HidenInput.Text = string.rep('•', #KeyMain.Input.InputBox.Text)
-            end)
-
-            KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
-                if not enterPressed or #KeyMain.Input.InputBox.Text == 0 then return end
-
-                local keyFound = false
-                for _, validKey in ipairs(Settings.KeySettings.Key) do
-                    if KeyMain.Input.InputBox.Text == validKey then
-                        keyFound = true
-                        break
-                    end
-                end
-
-                if keyFound then
-                    -- Key is valid, proceed to hide UI
-                    TweenService:Create(KeyMain, tweenInfo, {BackgroundTransparency = 1}):Play()
-                    delay(0.4, function() KeyUI:Destroy() end)
-                    Passthrough = true
-
-                    -- Save the key if enabled
-                    if Settings.KeySettings.SaveKey and writefile then
-                        writefile(keyFilePath, Settings.KeySettings.Key)
-                        DarkHubLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
-                    end
-                else
-                    attemptsRemaining = attemptsRemaining - 1
-                    if attemptsRemaining <= 0 then
-                        game.Players.LocalPlayer:Kick("No Attempts Remaining")
-                        game:Shutdown()
-                    else
-                        KeyMain.Input.InputBox.Text = ""
-                        -- Provide feedback for invalid key
-                        TweenService:Create(KeyMain, tweenInfo, {Size = UDim2.new(0, 500, 0, 187)}):Play()
-                        -- Add shake effect
-                        TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Elastic), {Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
-                    end
-                end
-            end)
-        end
-
-        -- Call the input handler
-        handleKeyInput()
-
-        -- Show/hide password functionality
-        local hidden = true
-        KeyMain.HideP.MouseButton1Click:Connect(function()
-            if hidden then
-                TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-                TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-            else
-                TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-                TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-            end
-            hidden = not hidden
-        end)
-
-        -- Hide UI button functionality
-        KeyMain.Hide.MouseButton1Click:Connect(function()
-            TweenService:Create(KeyMain, tweenInfo, {BackgroundTransparency = 1}):Play()
-            delay(0.51, function() DarkHubLibrary:Destroy() KeyUI:Destroy() end)
-        end)
-    else
-        Passthrough = true
-    end
-end
-
--- Wait until passthrough is set to true before proceeding
-if Settings.KeySystem then
-    repeat wait() until Passthrough
-end
-
-	DarkHub.Enabled = true
+			KeyMain.Hide.MouseButton1Click:Connect(function()
+				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
+				TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
+				TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+				TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+				wait(0.51)
+				ArrayFieldLibrary:Destroy()
+				KeyUI:Destroy()
+			end)
+		else
+			Passthrough = true
+		end
+	end
+	if Settings.KeySystem then
+		repeat wait() until Passthrough
+	end
+	ArrayField.Enabled = true
 	for _,tabbtn in pairs(SideList:GetChildren()) do
 		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "Placeholder" then
 			TweenService:Create(tabbtn.Title, TweenInfo.new(0.3, Enum.EasingStyle.Quint),{TextTransparency = 1}):Play()
@@ -1457,7 +1493,7 @@ end
 	--delay(4,function()
 	--	qNotePrompt({
 	--		Title = 'Preview',
-	--		Description = 'This is a preview for the official DarkHub forum post. Remember that things are subject to change.',
+	--		Description = 'This is a preview for the official ArrayField forum post. Remember that things are subject to change.',
 
 	--	})
 	--end)
@@ -1499,8 +1535,8 @@ end
 
 	-- Tab
 	local FirstTab = false
-	DarkHubQuality.Window = {Tabs = {}}
-	local Window = DarkHubQuality.Window
+	ArrayFieldQuality.Window = {Tabs = {}}
+	local Window = ArrayFieldQuality.Window
 	function Window:CreateTab(Name,Image)
 		Window.Tabs[Name]={Elements = {}}
 		local Tab = Window.Tabs[Name]
@@ -1563,7 +1599,7 @@ end
 			Elements.UIPageLayout.Animated = true
 		end
 
-		if SelectedTheme ~= DarkHubLibrary.Theme.Default then
+		if SelectedTheme ~= ArrayFieldLibrary.Theme.Default then
 			TopTabButton.Shadow.Visible = false
 		end
 		TopTabButton.UIStroke.Color = SelectedTheme.TabStroke
@@ -1676,7 +1712,7 @@ end
 					TweenService:Create(Button.ElementIndicator, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 					Button.Title.Text = "Callback Error"
-					print("DarkHub | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+					print("ArrayField | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -1742,7 +1778,7 @@ end
 		function Tab:CreateSection(SectionName,Display)
 
 			local SectionValue = {
-				Holder = DarkHub.Holding,
+				Holder = ArrayField.Holding,
 				Open = true
 			}
 			local Debounce = false
@@ -1769,7 +1805,7 @@ end
 				Section._UIPadding_:Destroy()
 				Section.Holder.Visible = false
 				Section.BackgroundTransparency = 1
-				SectionValue.Holder.Parent = DarkHub.Holding
+				SectionValue.Holder.Parent = ArrayField.Holding
 				Section.Title.ImageButton.Visible = false
 			end
 			Section.Title.ImageButton.MouseButton1Down:Connect(function()
@@ -1999,7 +2035,7 @@ end
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 					Input.Title.Text = "Callback Error"
-					print("DarkHub | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+					print("ArrayField | "..InputSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Input.Title.Text = InputSettings.Name
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2271,7 +2307,7 @@ end
 					end)
 					if not Success then
 						Error('Callback Error')
-						print("DarkHub | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+						print("ArrayField | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
 					end
 
 					OptionInTable.Selected = true
@@ -2316,7 +2352,7 @@ end
 				end
 				if Settings.ConfigurationSaving then
 					if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
-						DarkHubLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
+						ArrayFieldLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
 					end
 				end
 			end
@@ -2344,7 +2380,7 @@ end
 						TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 						Dropdown.Title.Text = "Callback Error"
-						print("DarkHub | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+						print("ArrayField | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Dropdown.Title.Text = DropdownSettings.Name
 						TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2523,7 +2559,7 @@ end
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 							Keybind.Title.Text = "Callback Error"
-							print("DarkHub | "..KeybindSettings.Name.." Callback Error " ..tostring(Response))
+							print("ArrayField | "..KeybindSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2582,7 +2618,7 @@ end
 			end
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
-					DarkHubLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
+					ArrayFieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
 			return KeybindSettings
@@ -2611,7 +2647,7 @@ end
 			else
 				Toggle.Parent = TabPage
 			end
-			if SelectedTheme ~= DarkHubLibrary.Theme.Default then
+			if SelectedTheme ~= ArrayFieldLibrary.Theme.Default then
 				Toggle.Switch.Shadow.Visible = false
 			end
 			ToggleSettings.Locked = false
@@ -2678,7 +2714,7 @@ end
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Callback Error"
-					print("DarkHub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					print("ArrayField | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2724,7 +2760,7 @@ end
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Callback Error"
-					print("DarkHub | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					print("ArrayField | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -2760,7 +2796,7 @@ end
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
-					DarkHubLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
+					ArrayFieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
 				end
 			end
 
@@ -2997,7 +3033,7 @@ end
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
-					DarkHubLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
+					ArrayFieldLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
 
@@ -3072,7 +3108,7 @@ end
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= DarkHubLibrary.Theme.Default then
+			if SelectedTheme ~= ArrayFieldLibrary.Theme.Default then
 				Slider.Main.Shadow.Visible = false
 			end
 
@@ -3145,7 +3181,7 @@ end
 						TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 						Slider.Title.Text = "Callback Error"
-						print("DarkHub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+						print("ArrayField | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Slider.Title.Text = SliderSettings.Name
 						TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3182,7 +3218,7 @@ end
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 					Slider.Title.Text = "Callback Error"
-					print("DarkHub | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+					print("ArrayField | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = SelectedTheme.ElementBackground}):Play()
@@ -3218,7 +3254,7 @@ end
 			end
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					DarkHubLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					ArrayFieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 			return SliderSettings
@@ -3293,7 +3329,7 @@ end
 						clicked = true
 						if not Success then
 							ClosePrompt()
-							print("DarkHub | "..info.Name.." Callback Error " ..tostring(Response))
+							print("ArrayField | "..info.Name.." Callback Error " ..tostring(Response))
 						else
 							ClosePrompt()
 						end
@@ -3332,8 +3368,8 @@ end
 end
 
 
-function DarkHubLibrary:Destroy()
-	DarkHub:Destroy()
+function ArrayFieldLibrary:Destroy()
+	ArrayField:Destroy()
 end
 
 Topbar.ChangeSize.MouseButton1Click:Connect(function()
@@ -3418,15 +3454,15 @@ for _, TopbarButton in ipairs(Topbar:GetChildren()) do
 end
 
 
-function DarkHubLibrary:LoadConfiguration()
+function ArrayFieldLibrary:LoadConfiguration()
 	if CEnabled then
 		pcall(function()
 			if isfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension) then
 				LoadConfiguration(readfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension))
-				DarkHubLibrary:Notify({Title = "Configuration Loaded", Content = "The configuration file for this script has been loaded from a previous session"})
+				ArrayFieldLibrary:Notify({Title = "Configuration Loaded", Content = "The configuration file for this script has been loaded from a previous session"})
 			end
 		end)
 	end
 end
-task.delay(9, DarkHubLibrary.LoadConfiguration, DarkHubLibrary)
-return DarkHubLibrary
+task.delay(9, ArrayFieldLibrary.LoadConfiguration, ArrayFieldLibrary)
+return ArrayFieldLibrary
