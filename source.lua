@@ -1265,196 +1265,135 @@ function DarkHubLibrary:CreateWindow(Settings)
 	end
 
 	if Settings.KeySystem then
-		if not Settings.KeySettings then
+	if not Settings.KeySettings then
+		Passthrough = true
+		return
+	end
+
+	if not isfolder(DarkHubFolder.."/Key System") then
+		makefolder(DarkHubFolder.."/Key System")
+	end
+
+	-- New Key Retrieval Logic
+	if Settings.KeySettings.GrabKeyFromSite then
+		for i, Key in ipairs(Settings.KeySettings.Key) do
+			local Success, Response = pcall(function()
+				Settings.KeySettings.Key[i] = tostring(game:HttpGet(Key):gsub("[\n\r]", " "))
+				Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
+			end)
+			if not Success then
+				print("DarkHub | "..Key.." Error " ..tostring(Response))
+			end
+		end
+	end
+
+	-- Check for File Name
+	if not Settings.KeySettings.FileName then
+		Settings.KeySettings.FileName = "No file name specified"
+	end
+
+	-- Key Validation Logic
+	if isfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) then
+		if readfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) == Settings.KeySettings.Key then
 			Passthrough = true
-			return
 		end
+	end
 
-		if not isfolder(DarkHubFolder.."/Key System") then
-			makefolder(DarkHubFolder.."/Key System")
-		end
+	if not Passthrough then
+		local AttemptsRemaining = math.random(2, 6)
+		DarkHub.Enabled = false
+		local KeyUI = game:GetObjects("rbxassetid://11695805160")[1]
+		KeyUI.Enabled = true
+		pcall(function()
+			_G.KeyUI:Destroy()
+		end)
+		_G.KeyUI = KeyUI
 
-		if Settings.KeySettings.GrabKeyFromSite then
-			for i, Key in ipairs(Settings.KeySettings.Key) do
-				local Success, Response = pcall(function()
-					Settings.KeySettings.Key[i] = tostring(game:HttpGet(Key):gsub("[\n\r]", " "))
-					Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
+		ParentObject(KeyUI)
+
+		local KeyMain = KeyUI.Main
+		KeyMain.Title.Text = Settings.KeySettings.Title or Settings.Name
+		KeyMain.Subtitle.Text = Settings.KeySettings.Subtitle or "Key System"
+		KeyMain.NoteMessage.Text = Settings.KeySettings.Note or "No instructions"
+
+		-- Initialize UI Properties
+		KeyMain.Size = UDim2.new(0, 467, 0, 175)
+		KeyMain.BackgroundTransparency = 1
+		KeyMain.EShadow.ImageTransparency = 1
+		KeyMain.Title.TextTransparency = 1
+		KeyMain.Subtitle.TextTransparency = 1
+		KeyMain.KeyNote.TextTransparency = 1
+		KeyMain.Input.BackgroundTransparency = 1
+		KeyMain.Input.UIStroke.Transparency = 1
+		KeyMain.Input.InputBox.TextTransparency = 1
+		KeyMain.NoteTitle.TextTransparency = 1
+		KeyMain.NoteMessage.TextTransparency = 1
+		KeyMain.Hide.ImageTransparency = 1
+		KeyMain.HideP.ImageTransparency = 1
+		KeyMain.Actions.Template.TextTransparency = 1
+
+		if Settings.KeySettings.Actions then
+			for _, ActionInfo in ipairs(Settings.KeySettings.Actions) do
+				local Action = KeyMain.Actions.Template:Clone()
+				Action.Text = ActionInfo.Text
+				Action.MouseButton1Down:Connect(ActionInfo.OnPress)
+				Action.MouseEnter:Connect(function()
+					TweenService:Create(Action, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(185, 185, 185)}):Play()
 				end)
-				if not Success then
-					print("DarkHub | "..Key.." Error " ..tostring(Response))
-				end
+				Action.MouseLeave:Connect(function()
+					TweenService:Create(Action, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(105, 105, 105)}):Play()
+				end)
+				Action.Parent = KeyMain.Actions
+				delay(0.2, function()
+					Action.Visible = true
+					TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+				end)
 			end
 		end
 
-		if not Settings.KeySettings.FileName then
-			Settings.KeySettings.FileName = "No file name specified"
-		end
+		-- Tween UI Elements into View
+		TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+		TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 500, 0, 187)}):Play()
+		TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 0.5}):Play()
+		wait(0.05)
+		TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		wait(0.05)
+		TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
+		TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0}):Play()
+		TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		wait(0.05)
+		TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
+		wait(0.15)
+		TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
+		TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
+		
+		-- Hide Input Text
+		KeyUI.Main.Input.InputBox:GetPropertyChangedSignal('Text'):Connect(function()
+			KeyUI.Main.Input.HidenInput.Text = string.rep('•', #KeyUI.Main.Input.InputBox.Text)
+		end)
 
-		if isfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) then
-			if readfile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension) == Settings.KeySettings.Key then
-				Passthrough = true
-			end
-		end
-
-		if not Passthrough then
-			local AttemptsRemaining = math.random(2,6)
-			DarkHub.Enabled = false
-			local KeyUI = game:GetObjects("rbxassetid://11695805160")[1]
-			KeyUI.Enabled = true
-			pcall(function()
-				_G.KeyUI:Destroy()
-			end)
-			_G.KeyUI = KeyUI
-
-			ParentObject(KeyUI)
-
-			local KeyMain = KeyUI.Main
-			KeyMain.Title.Text = Settings.KeySettings.Title or Settings.Name
-			KeyMain.Subtitle.Text = Settings.KeySettings.Subtitle or "Key System"
-			KeyMain.NoteMessage.Text = Settings.KeySettings.Note or "No instructions"
-
-			KeyMain.Size = UDim2.new(0, 467, 0, 175)
-			KeyMain.BackgroundTransparency = 1
-			KeyMain.EShadow.ImageTransparency = 1
-			KeyMain.Title.TextTransparency = 1
-			KeyMain.Subtitle.TextTransparency = 1
-			KeyMain.KeyNote.TextTransparency = 1
-			KeyMain.Input.BackgroundTransparency = 1
-			KeyMain.Input.UIStroke.Transparency = 1
-			KeyMain.Input.InputBox.TextTransparency = 1
-			KeyMain.NoteTitle.TextTransparency = 1
-			KeyMain.NoteMessage.TextTransparency = 1
-			KeyMain.Hide.ImageTransparency = 1
-			KeyMain.HideP.ImageTransparency = 1
-			KeyMain.Actions.Template.TextTransparency = 1
-
-			if Settings.KeySettings.Actions then
-				for _,ActionInfo in ipairs(Settings.KeySettings.Actions) do
-					local Action = KeyMain.Actions.Template:Clone()
-					Action.Text = ActionInfo.Text
-					Action.MouseButton1Down:Connect(ActionInfo.OnPress)
-					Action.MouseEnter:Connect(function()
-						TweenService:Create(Action,TweenInfo.new(.25,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{TextColor3 = Color3.fromRGB(185, 185, 185)}):Play()
-					end)
-					Action.MouseLeave:Connect(function()
-						TweenService:Create(Action,TweenInfo.new(.25,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{TextColor3 = Color3.fromRGB(105, 105, 105)}):Play()
-					end)
-					Action.Parent = KeyMain.Actions
-					delay(.2,function()
-						Action.Visible = true
-						TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-					end)
+		-- Input Box Logic
+		KeyUI.Main.Input.InputBox.FocusLost:Connect(function(EnterPressed)
+			if not EnterPressed then return end
+			if #KeyUI.Main.Input.InputBox.Text == 0 then return end
+			local KeyFound = false
+			local FoundKey = ''
+			for _, MKey in ipairs(Settings.KeySettings.Key) do
+				if KeyMain.Input.InputBox.Text == MKey then
+					KeyFound = true
+					FoundKey = MKey
 				end
 			end
-
-			TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
-			TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 500, 0, 187)}):Play()
-			TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 0.5}):Play()
-			wait(0.05)
-			TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			wait(0.05)
-			TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0}):Play()
-			TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 0}):Play()
-			TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			wait(0.05)
-			TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-			wait(0.15)
-			TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
-			TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 0.3}):Play()
-			KeyUI.Main.Input.InputBox:GetPropertyChangedSignal('Text'):Connect(function()
-				KeyUI.Main.Input.HidenInput.Text = string.rep('•', #KeyUI.Main.Input.InputBox.Text)
-			end)
-			KeyUI.Main.Input.InputBox.FocusLost:Connect(function(EnterPressed)
-				if not EnterPressed then return end
-				if #KeyUI.Main.Input.InputBox.Text == 0 then return end
-				local KeyFound = false
-				local FoundKey = ''
-				for _, MKey in ipairs(Settings.KeySettings.Key) do
-					if KeyMain.Input.InputBox.Text== MKey then
-						KeyFound = true
-						FoundKey = MKey
+			if KeyFound then
+				for _, Action in ipairs(KeyMain.Actions:GetChildren()) do
+					if Action:IsA('TextButton') then
+						TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 					end
 				end
-				if KeyFound then
-					for _,Action in ipairs(KeyMain.Actions:GetChildren()) do
-						if Action:IsA('TextButton') then
-							TweenService:Create(Action, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						end
-					end
-					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
-					TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
-					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-					TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-					delay(.4,function()
-						KeyMain.Hide.Visible = false
-						KeyUI:Destroy()
-					end)
-					wait(0.51)
-					Passthrough = true
-					if Settings.KeySettings.SaveKey then
-						if writefile then
-							writefile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, Settings.KeySettings.Key)
-						end
-						DarkHubLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
-					end
-				else
-					if AttemptsRemaining == 0 then
-						TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-						TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
-						TweenService:Create(KeyMain.Shadow.Image, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
-						TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-						TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-						TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-						wait(0.45)
-						game.Players.LocalPlayer:Kick("No Attempts Remaining")
-						game:Shutdown()
-					end
-					KeyMain.Input.InputBox.Text = ""
-					AttemptsRemaining = AttemptsRemaining - 1
-					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
-					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Elastic), {Position = UDim2.new(0.495,0,0.5,0)}):Play()
-					wait(0.1)
-					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Elastic), {Position = UDim2.new(0.505,0,0.5,0)}):Play()
-					wait(0.1)
-					TweenService:Create(KeyMain, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {Position = UDim2.new(0.5,0,0.5,0)}):Play()
-					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 500, 0, 187)}):Play()
-				end
-			end)
-			local Hidden = true
-			KeyMain.HideP.MouseButton1Click:Connect(function()
-				if Hidden then
-					TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-					Hidden = false
-				else
-					TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()
-					TweenService:Create(KeyMain.Input.InputBox,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-					Hidden = true
-				end
-			end)
-
-			KeyMain.Hide.MouseButton1Click:Connect(function()
+				-- Animate UI on successful key entry
 				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
 				TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 467, 0, 175)}):Play()
 				TweenService:Create(KeyMain.EShadow, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
@@ -1464,22 +1403,111 @@ function DarkHubLibrary:CreateWindow(Settings)
 				TweenService:Create(KeyMain.Input, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
 				TweenService:Create(KeyMain.Input.UIStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
 				TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
+				TweenService:Create(KeyMain.Input.HidenInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 				TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
-				TweenService:Create(KeyMain.Input.HidenInput,TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 				TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 				TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
 				TweenService:Create(KeyMain.HideP, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
-				wait(0.51)
-				DarkHubLibrary:Destroy()
+
+				wait(0.3)
+
+				-- Save Valid Key
+				if Settings.KeySettings.SaveKey then
+					if writefile then
+						writefile(DarkHubFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension, FoundKey)
+					end
+					DarkHubLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
+				end
+
+				-- Key Validation Passed
+				Passthrough = true
 				KeyUI:Destroy()
-			end)
-		else
-			Passthrough = true
-		end
+			else
+				AttemptsRemaining = AttemptsRemaining - 1
+				if AttemptsRemaining <= 0 then
+					game.Players.LocalPlayer:Kick("No Attempts Remaining")
+					game:Shutdown()
+				else
+					print("Invalid key. Attempts remaining: " .. AttemptsRemaining)
+					KeyMain.Input.InputBox.Text = ""
+				end
+			end
+		end)
+	else
+		print("Key validated from file. Bypassing UI.")
 	end
-	if Settings.KeySystem then
-		repeat wait() until Passthrough
+end
+
+-- Firebase URL for key validation
+local firebaseURL = "https://darkhub-de599-default-rtdb.firebaseio.com/.json"
+
+-- Function to fetch keys data from Firebase
+local function fetchKeysData()
+	local success, response = pcall(function()
+		return game:HttpGet(firebaseURL)
+	end)
+	if not success then
+		print("Error fetching data from Firebase: " .. tostring(response))
+		return nil
 	end
+	return HttpService:JSONDecode(response)
+end
+
+-- Calculate remaining time for expiry
+local function calculateRemainingTime(expiryDate)
+	local timeRemaining = expiryDate - os.time()
+	local days = math.floor(timeRemaining / (60 * 60 * 24))
+	local hours = math.floor((timeRemaining % (60 * 60 * 24)) / (60 * 60))
+	local minutes = math.floor((timeRemaining % (60 * 60)) / 60)
+	return days, hours, minutes
+end
+
+-- Get expiry time from Type if no ExpiryDate is provided
+local function getExpiryFromType(typeString)
+	local durationInSeconds = {
+		["1 day"] = 24 * 60 * 60,
+		["1 week"] = 7 * 24 * 60 * 60,
+		["1 month"] = 30 * 24 * 60 * 60,
+		["1 year"] = 365 * 24 * 60 * 60,
+		["lifetime"] = math.huge
+	}
+	return os.time() + (durationInSeconds[typeString] or 0)
+end
+
+-- Check if a key is valid
+local function checkKeyValidity(key)
+	local keysData = fetchKeysData()
+	if not keysData or not keysData[key] then
+		print("Invalid key.")
+		return false
+	end
+	
+	local keyData = keysData[key]
+	local expiryDate
+
+	-- Use ExpiryDate if available, otherwise calculate based on Type
+	if keyData.ExpiryDate then
+		expiryDate = keyData.ExpiryDate
+	else
+		expiryDate = getExpiryFromType(keyData.Type)
+	end
+
+	-- Calculate remaining time
+	local days, hours, minutes = calculateRemainingTime(expiryDate)
+	
+	if days < 0 or hours < 0 or minutes < 0 then
+		print("The key has expired.")
+		return false
+	else
+		print("Remaining time:", days .. " days, " .. hours .. " hours, " .. minutes .. " minutes")
+		return true
+	end
+end
+
+-- Check for passthrough
+if Settings.KeySystem then
+	repeat wait() until Passthrough
+end
 	DarkHub.Enabled = true
 	for _,tabbtn in pairs(SideList:GetChildren()) do
 		if tabbtn.ClassName == "Frame" and tabbtn.Name ~= "Placeholder" then
