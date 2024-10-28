@@ -1390,7 +1390,7 @@ end
 KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
     if not enterPressed or #KeyMain.Input.InputBox.Text == 0 then return end
 
-    local userInput = KeyMain.Input.InputBox.Text:trim() -- Trim whitespace
+    local userInput = KeyMain.Input.InputBox.Text
     local keyFound = false
 
     -- Check against Firebase keys
