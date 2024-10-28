@@ -1368,21 +1368,33 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 				KeyUI.Main.Input.HidenInput.Text = string.rep('•', #KeyUI.Main.Input.InputBox.Text)
 			end)
 			-- Inside the key input handling function
+local HttpService = game:GetService("HttpService")
+local firebaseURL = "https://<your-database-name>.firebaseio.com/" -- Replace with your Firebase Realtime Database URL
+local apiKey = "<your-firebase-api-key>" -- Replace with your API key
+local keyFilePath = ArrayFieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension
+
+-- Function to check if a key is valid in Firebase
+local function isKeyValid(key)
+    local url = firebaseURL .. "keys.json" -- Assuming you have a 'keys' node in your database
+    local response = HttpService:GetAsync(url) -- Fetch keys from Firebase
+    local keys = HttpService:JSONDecode(response) -- Decode JSON response
+
+    for _, validKey in ipairs(keys) do
+        if key == validKey then
+            return true
+        end
+    end
+    return false
+end
+
 KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
     if not enterPressed or #KeyMain.Input.InputBox.Text == 0 then return end
 
     local userInput = KeyMain.Input.InputBox.Text:trim() -- Trim whitespace
     local keyFound = false
-    local foundKey = nil
 
-    -- Check against all valid keys
-    for _, validKey in ipairs(Settings.KeySettings.Key) do
-        if userInput == validKey then
-            keyFound = true
-            foundKey = validKey
-            break -- Exit loop early if key is found
-        end
-    end
+    -- Check against Firebase keys
+    keyFound = isKeyValid(userInput)
 
     if keyFound then
         -- Key is valid, proceed to hide UI
@@ -1392,7 +1404,7 @@ KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
 
         -- Save the key if enabled
         if Settings.KeySettings.SaveKey and writefile then
-            writefile(keyFilePath, foundKey) -- Save the found key
+            writefile(keyFilePath, userInput) -- Save the user input key
             ArrayFieldLibrary:Notify({Title = "Key System", Content = "The key for this script has been saved successfully"})
         end
     else
@@ -1410,6 +1422,7 @@ KeyMain.Input.InputBox.FocusLost:Connect(function(enterPressed)
         end
     end
 end)
+
 
 			local Hidden = true
 			KeyMain.HideP.MouseButton1Click:Connect(function()
