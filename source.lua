@@ -1369,7 +1369,7 @@ function ArrayFieldLibrary:CreateWindow(Settings)
 			end)
 			-- Inside the key input handling function
 local HttpService = game:GetService("HttpService")
-local firebaseURL = "https://<your-database-name>.firebaseio.com/" -- Replace with your Firebase Realtime Database URL
+local firebaseURL = "https://darkhub-de599-default-rtdb.firebaseio.com/" -- Replace with your Firebase Realtime Database URL
 local apiKey = "<your-firebase-api-key>" -- Replace with your API key
 local keyFilePath = ArrayFieldFolder.."/Key System".."/"..Settings.KeySettings.FileName..ConfigurationExtension
 
